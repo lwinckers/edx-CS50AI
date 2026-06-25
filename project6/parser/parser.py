@@ -80,7 +80,23 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    chunks = []
+    
+    # Convert tree to parented tree, so you can go up in the tree instead of only down.
+    ptree = nltk.tree.ParentedTree.convert(tree)
+ 
+    for subtree in ptree.subtrees():
+        if subtree.label() == "NP":
+            # Check that no descendant of this subtree is also an NP
+            has_np_descendant = any(
+                d.label() == "NP"
+                for d in subtree.subtrees()
+                if d is not subtree  # don't count the subtree itself
+            )
+            if not has_np_descendant:
+                chunks.append(subtree)
+
+    return chunks
 
 
 if __name__ == "__main__":
